@@ -4,6 +4,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from openai import OpenAI # <-- 使用 OpenAI 库，它与 DeepSeek 兼容
+# --- 为函数计算新增导入 ---
+from werkzeug.wsgi import WSGIWrapper # 确保你已安装Werkzeug
+# from werkzeug.serving import run_simple # 这行通常不需要，除非你本地也用它测试
+# --- 新增导入结束 ---
 
 # 加载 .env 文件中的环境变量
 load_dotenv()
