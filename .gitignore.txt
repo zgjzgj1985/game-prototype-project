@@ -1,0 +1,14 @@
+# Python files and directories to ignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.env # <-- 确保这一行存在，它会忽略你的 .env 文件
+
+# Other common ignore files
+.DS_Store # macOS
+.vscode/ # VS Code settings

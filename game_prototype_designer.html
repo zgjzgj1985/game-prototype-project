@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI游戏原型设计器</title>
+    <!-- 移除了 Mermaid.js 库的引入 -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .container {
+            max-width: 960px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #495057;
+            font-size: 1.1em;
+        }
+        input[type="text"],
+        textarea {
+            width: calc(100% - 24px); /* Adjusted for padding and border */
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 18px 20px;
+            background-color: #28a745; /* Green for action */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #218838;
+            transform: translateY(-3px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result-section {
+            margin-top: 50px;
+            padding-top: 35px;
+            border-top: 1px solid #e9ecef;
+        }
+        .result-section h2 {
+            color: #0056b3;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 600;
+        }
+        .result-item {
+            background-color: #e6f7ff;
+            border: 1px solid #b3e0ff;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        .result-item h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 1.6em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+            display: inline-block; /* 让下划线只在文本下方 */
+        }
+        .result-item h4 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+        .result-item ul, .result-item ol {
+            list-style-position: inside;
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        .result-item li {
+            margin-bottom: 8px;
+            list-style-type: disc; /* 默认使用圆点 */
+        }
+        .result-item ol li {
+            list-style-type: decimal; /* 有序列表使用数字 */
+        }
+        .loading-message {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+            color: #6c757d;
+            font-size: 1.2em;
+        }
+        pre {
+            background-color: #f0f0f0;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: #36454F;
+        }
+        /* 移除了 .mermaid 相关的样式 */
+        .error-message {
+            background-color: #ffebe6;
+            border: 1px solid #ffcccc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #dc3545;
+            text-align: center;
+            font-weight: bold;
+        }
+        .info-box {
+            background-color: #f8d7da; /* Light red for warning/info */
+            color: #721c24; /* Dark red for text */
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+        .info-box strong {
+            color: #490e11;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 AI游戏原型设计器 🧠</h1>
+        <p style="text-align: center; color: #6c757d; margin-bottom: 30px;">
+            此工具将调用您提供的AI后端服务，为您生成详细的游戏原型和核心玩法规则！
+        </p>
+
+        <div class="info-box">
+            <strong>重要提示：</strong>这是一个需要后端支持的真实API调用示例。
+            您需要
+            <a href="#backend-setup" style="color: #721c24; text-decoration: underline;">搭建并运行Python Flask后端服务</a>，
+            并在“AI服务API地址”中填写其地址（例如：`http://127.0.0.1:5000/generate-prototype`）。
+            同时，您需要提供自己的DeepSeek AI API Key给后端服务（通过环境变量设置）。
+        </div>
+
+        <form id="mechanicsForm">
+            <div class="form-group">
+                <label for="apiEndpoint">AI服务API地址 (例如: http://127.0.0.1:5000/generate-prototype)</label>
+                <input type="text" id="apiEndpoint" value="http://127.0.0.1:5000/generate-prototype" required>
+            </div>
+            <div class="form-group">
+                <label for="gameType">游戏类型关键词 (例如：动作RPG, 策略模拟, 生存建造, 叙事解谜)</label>
+                <input type="text" id="gameType" placeholder="例如：塔防RTS Roguelike" required>
+            </div>
+            <div class="form-group">
+                <label for="targetExperience">目标体验关键词 (例如：深度探索, 激烈对抗, 轻松休闲, 烧脑挑战, 孤独感)</label>
+                <input type="text" id="targetExperience" placeholder="例如：末日生存, 高重玩性" required>
+            </div>
+            <button type="submit" id="submitBtn">设计游戏原型</button>
+        </form>
+
+        <div id="loading" class="loading-message" style="display: none;">
+            正在连接AI后端，深度构思中，请稍候... 🚀
+        </div>
+        <div id="error" class="error-message" style="display: none;"></div>
+
+        <div id="output" class="result-section" style="display: none;">
+            <h2>💡 游戏原型设计</h2>
+            <!-- 结果将在这里动态插入 -->
+        </div>
+    </div>
+
+    <script>
+        // 移除了 mermaid.initialize() 调用
+
+        document.getElementById('mechanicsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const apiEndpoint = document.getElementById('apiEndpoint').value;
+            const gameType = document.getElementById('gameType').value;
+            const targetExperience = document.getElementById('targetExperience').value;
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const outputDiv = document.getElementById('output');
+
+            // 重置状态
+            submitBtn.disabled = true;
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            outputDiv.style.display = 'none';
+            outputDiv.innerHTML = '';
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ gameType, targetExperience }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const proto = data.data;
+                    let resultHtml = `
+                        <div class="result-item">
+                            <h3>${proto.title || '未知原型'}</h3>
+                            <p><strong>核心理念：</strong>${proto.elevator_pitch || '未提供'}</p>
+
+                            <h4>🕹️ 核心玩法循环：</h4>
+                            <ol>
+                                ${proto.core_gameplay_loop && proto.core_gameplay_loop.length > 0 ? proto.core_gameplay_loop.map(step => `<li>${step}</li>`).join('') : '<li>未提供</li>'}
+                            </ol>
+                        </div>
+                    `;
+
+                    if (proto.key_mechanics && proto.key_mechanics.length > 0) {
+                        resultHtml += `<div class="result-item"><h4>⚙️ 核心机制与规则：</h4>`;
+                        proto.key_mechanics.forEach(mech => {
+                            resultHtml += `
+                                <h5>${mech.name || '未知机制'}</h5>
+                                <p>${mech.description || '未提供描述'}</p>
+                                <ul>
+                                    ${mech.rules && mech.rules.length > 0 ? mech.rules.map(rule => `<li>${rule}</li>`).join('') : '<li>未提供具体规则</li>'}
+                                </ul>
+                            `;
+                        });
+                        resultHtml += `</div>`;
+                    }
+
+                    if (proto.interplay_of_mechanics) {
+                        resultHtml += `
+                            <div class="result-item">
+                                <h4>🔗 机制联动与协同：</h4>
+                                <p>${proto.interplay_of_mechanics}</p>
+                            </div>
+                        `;
+                    }
+
+                    if (proto.potential_challenges && proto.potential_challenges.length > 0) {
+                        resultHtml += `
+                            <div class="result-item">
+                                <h4>⚠️ 潜在设计挑战与风险：</h4>
+                                <ul>
+                                    ${proto.potential_challenges.map(challenge => `<li>${challenge}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    }
+
+                    if (proto.pseudocode_example) {
+                        resultHtml += `
+                            <div class="result-item">
+                                <h4>💻 伪代码示例 (核心循环逻辑)：</h4>
+                                <pre>${proto.pseudocode_example}</pre>
+                            </div>
+                        `;
+                    }
+
+                    // 移除了 Mermaid 图表的显示逻辑
+
+                    outputDiv.innerHTML = resultHtml;
+                    outputDiv.style.display = 'block';
+
+                    // 移除了 mermaid.init() 调用
+                } else {
+                    errorDiv.innerHTML = `<div>AI服务返回错误: ${data.message || '未知错误'}</div>`;
+                    errorDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                errorDiv.innerHTML = `<div>连接AI服务失败，请检查API地址或后端服务是否正在运行：${error.message}</div>`;
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
