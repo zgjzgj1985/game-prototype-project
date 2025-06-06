@@ -137,5 +137,6 @@ def generate_prototype():
         print(f"Error: {e}")
         return jsonify({"success": False, "message": f"服务器内部错误或API调用失败: {str(e)}"}), 500
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) # debug=True 会在代码修改后自动重启服务器，开发时很方便
