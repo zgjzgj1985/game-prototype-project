@@ -139,4 +139,13 @@ def generate_prototype():
 
 
 if __name__ == '__main__':
-    app.run(debug=True) # debug=True 会在代码修改后自动重启服务器，开发时很方便
+    app.run(debug=True) # 这部分保留用于本地开发和测试
+else:
+    # 这是阿里云函数计算的入口点（Handler），它会包装你的 Flask 应用
+    # 确保你的Flask应用实例名为 app
+    # 阿里云FC通常会寻找一个名为 'main.handler' 或 'app.handler' 的入口
+    # 我们这里定义一个函数，并通过WSGIWrapper包装Flask app
+    # 函数计算的运行时会自动调用这里定义的 handler 函数
+    # 注意：这里的 handler 函数名必须与你在FC控制台配置的Handler名称一致
+    def handler(environ, start_response):
+        return app(environ, start_response)
