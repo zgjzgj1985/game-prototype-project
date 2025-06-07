@@ -8,6 +8,7 @@ env/
 venv/
 .venv/
 *.env # <-- 确保这一行存在，它会忽略你的 .env 文件
+*.zip
 
 # Other common ignore files
 .DS_Store # macOS
